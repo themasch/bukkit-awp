@@ -1,0 +1,34 @@
+<project name="awp" default="dist" basedir=".">
+    <property name="bukkit.jar" location="/home/minecraft/currbukkit.jar" />
+    <property name="pluginpath" location="/home/minecraft/plugins" />
+    <property name="pluginname" value="awp" />
+    <property name="src"  location="src"  />
+    <property name="dist" location="dist" />
+    <property name="bin"  location="bin"  />
+    <property name="res"  location="res"  />
+
+    <target name="init">
+        <mkdir dir="${bin}" />
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${bin}" classpath="${bukkit.jar}" debug="on" includeantruntime="false" />
+    </target>
+
+    <target name="dist" depends="compile">
+        <mkdir dir="${dist}" />
+        <jar jarfile="${dist}/${pluginname}.jar">
+            <fileset dir="${bin}" />
+            <fileset dir="${res}" />
+        </jar>
+    </target>
+
+    <target name="deploy" depends="dist">
+        <copy file="${dist}/${pluginname}.jar" todir="${pluginpath}" />
+    </target>
+
+    <target name="clean">
+        <delete dir="${bin}"/>
+        <delete dir="${dist}"/>
+    </target>
+</project>
