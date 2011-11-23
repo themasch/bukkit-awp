@@ -7,7 +7,7 @@ class WarpPoint extends Location
 {
     public WarpPoint(Location loc) 
     {
-        super(loc.getWorld(), loc.getX(), loc.getY(), loc.getY(), loc.getYaw(), loc.getPitch());
+        super(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
     }
 
     public WarpPoint(Server srv, String str) throws Exception
