@@ -64,13 +64,13 @@ public class AwpCommandExecutor implements CommandExecutor {
 	private void usage(CommandSender sender) {
 		String[] msgs = new String[4];
 		msgs[0] = ChatColor.WHITE + "/awp <name>" + ChatColor.YELLOW
-				+ "Warp to the specified warp point.";
+				+ " Warp to the specified warp point.";
 		msgs[1] = ChatColor.WHITE + "/awp create <name>" + ChatColor.YELLOW
-				+ "Create a warp point at the current position.";
+				+ " Create a warp point at the current position.";
 		msgs[2] = ChatColor.WHITE + "/awp set <name>" + ChatColor.YELLOW
-				+ "Set the specified warp point to the current position.";
+				+ " Set the specified warp point to the current position.";
 		msgs[3] = ChatColor.WHITE + "/awp del <name>" + ChatColor.YELLOW
-				+ "Delete the specified warp point.";
+				+ " Delete the specified warp point.";
 		sender.sendMessage(msgs);
 	}
 
@@ -185,7 +185,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 		String wps = wp.toString();
 		this.warps.set(name, wps);
 
-		pl.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wps + " created.");
+		pl.sendMessage(ChatColor.DARK_PURPLE + "Warp " + args[1] + " created.");
 		this.saveConfig();
 	}
 
@@ -268,6 +268,10 @@ public class AwpCommandExecutor implements CommandExecutor {
 
 		player.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wp + " deleted.");
 		this.saveConfig();
+	}
+
+	public void doList() {
+		// TODO
 	}
 
 }
