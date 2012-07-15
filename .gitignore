@@ -4,3 +4,9 @@
 /.settings
 /bin
 /dist
+/nbproject/private/
+/build/
+/nbproject/
+/nbbuild.xml
+/manifest.mf
+/build/

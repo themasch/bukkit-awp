@@ -12,31 +12,34 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class AwpCommandExecutor implements CommandExecutor {
+public class AwpCommandExecutor implements CommandExecutor 
+{
 	private final JavaPlugin plugin;
 	private final FileConfiguration config;
 	private ConfigurationSection warps;
 	public final TeleportManager tm;
 
-	public AwpCommandExecutor(JavaPlugin plugin) {
+	public AwpCommandExecutor(JavaPlugin plugin) 
+	{
 		this.plugin = plugin;
 		this.config = plugin.getConfig();
 		this.warps = this.config.getConfigurationSection("warps");
 		if (this.warps == null) {
 			this.warps = this.config.createSection("warps");
 		}
-		TelePlusPlus tpp = (TelePlusPlus) plugin.getServer().getPluginManager()
-				.getPlugin("TelePlusPlus");
+		TelePlusPlus tpp = (TelePlusPlus) plugin.getServer()
+												.getPluginManager()
+												.getPlugin("TelePlusPlus");
 		if (tpp == null || !tpp.isEnabled()) {
-			throw new RuntimeException(
-					"TelePlusPlus not active on this server!");
+			throw new RuntimeException("TelePlusPlus not active on this server!");
 		}
 		this.tm = tpp.tm;
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd,
-			String commandLabel, String[] args) {
+							 String commandLabel,  String[] args) 
+  {
 		Player player = null;
 		if (sender instanceof Player) {
 			player = (Player) sender;
@@ -51,14 +54,13 @@ public class AwpCommandExecutor implements CommandExecutor {
 				this.doCreate(player, args);
 			} else {
 				this.doWarp(player, args);
-
 			}
 		}
-
 		return true;
 	}
 
-	public void doWarp(Player pl, String[] args) {
+	public void doWarp(Player pl, String[] args) 
+	{
 		if (!pl.hasPermission("awp.warp.own")
 				&& !pl.hasPermission("awp.warp.public")) {
 			pl.sendMessage(ChatColor.RED + "No permission to warp, buddy.");
@@ -139,7 +141,8 @@ public class AwpCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	public void doCreate(Player pl, String[] args) {
+	public void doCreate(Player pl, String[] args) 
+	{
 		if (!pl.hasPermission("awp.create")) {
 			pl.sendMessage(ChatColor.RED + "Missing permissions! (awp.create)");
 			return;
@@ -165,7 +168,8 @@ public class AwpCommandExecutor implements CommandExecutor {
 		this.saveConfig();
 	}
 
-	public void saveConfig() {
+	public void saveConfig() 
+	{
 		this.plugin.saveConfig();
 	}
 
