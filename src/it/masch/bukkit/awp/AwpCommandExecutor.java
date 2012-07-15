@@ -93,9 +93,10 @@ public class AwpCommandExecutor implements CommandExecutor
 			pl.sendMessage(ChatColor.RED + "No permission to warp, buddy.");
 		}
 
-		String wp = args[0];
+		String wp = args[0].toLowerCase();
 		String owner = null;
-		String player = pl.getName();
+		String playerName = pl.getName().toLowerCase();
+		
 		if (wp.indexOf(".") != -1) {
 			String ownerName = wp.substring(0, wp.indexOf("."));
 			owner = matchPlayer(ownerName);
@@ -104,23 +105,24 @@ public class AwpCommandExecutor implements CommandExecutor
 			}
 		}
 
-		String wpOwner = "";
+		String wpOwner = null;
 
-		while (true) {
-			if ((owner == null || owner.equals(player))
+		do {
+			if ((owner == null || owner.equalsIgnoreCase(playerName))
 					&& pl.hasPermission("awp.warp.own")
-					&& warps.contains(player + "." + wp)) {
-				wpOwner = player;
+					&& warps.contains(playerName + "." + wp)) {
+				wpOwner = playerName;
 				break;
 			}
 
-			if (player.equalsIgnoreCase(owner)) {
-				if (pl.hasPermission("awp.warp.own"))
+			if (playerName.equalsIgnoreCase(owner)) {
+				if (pl.hasPermission("awp.warp.own")) {
 					pl.sendMessage(ChatColor.RED
-							+ "Sorry, warp point not found. 1");
-				else
+							+ "Sorry, warp point '" + playerName + "." + wp + "' not found.");
+				} else { 
 					pl.sendMessage(ChatColor.RED
 							+ "No permission to warp, buddy.");
+				}
 				return;
 			}
 
@@ -137,27 +139,43 @@ public class AwpCommandExecutor implements CommandExecutor
 						break;
 					}
 				}
-				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found. 2");
+				if(wpOwner != null) 
+					break;
+				
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
 				return;
 			}
 
 			if (!warps.contains(owner + "." + wp)) {
-				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found. 3");
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
 				return;
 			}
 
 			// TODO (ispublic y/n)
 			wpOwner = owner;
-			break;
-		}
+		} while(false);
 		wpOwner = wpOwner.toLowerCase();
 		WarpPoint warp = null;
+		
+		ConfigurationSection subfields = this.warps.getConfigurationSection(wpOwner + "." + wp);
+		if(subfields != null) {
+			pl.sendMessage(ChatColor.RED + "Warp point is ambiguous. Valid options are: ");
+			for(String name : subfields.getKeys(false)) {
+				pl.sendMessage("    " + wp + "." + name);
+			}
+			return;
+		}
+		String data = null;
 		try {
-			warp = new WarpPoint(this.plugin.getServer(),
-					this.warps.getString(wpOwner + "." + wp));
+			data = this.warps.getString(wpOwner + "." + wp);
+			warp = new WarpPoint(this.plugin.getServer(), data);
+			
 		} catch (Exception e) {
 			pl.sendMessage(ChatColor.RED + "Broken data, Junge!");
+			pl.sendMessage(ChatColor.AQUA + data);
+			return;
 		}
+		
 		warp.subtract(.5, 0, .5);
 		if (!tm.teleport(pl, warp)) {
 			pl.sendMessage(ChatColor.RED + "No free space available for warp");
