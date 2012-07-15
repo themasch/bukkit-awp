@@ -2,7 +2,7 @@ name: awp
 version: 0.0.1
 description: awesome warp plugin
 author: masch
-main: it.masch.bukkit.awp.Main
+main: it.masch.bukkit.awp.AWP
 commands:
     awp:
         description: The main AWP command

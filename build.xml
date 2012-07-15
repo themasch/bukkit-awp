@@ -1,6 +1,6 @@
 <project name="awp" default="dist" basedir=".">
-    <property name="bukkit.jar" location="/home/minecraft/currbukkit.jar" />
-    <property name="pluginpath" location="/home/minecraft/plugins" />
+    <property name="bukkit.jar" location="lib/craftbukkit-1.2.5-R4.0.jar" />
+    <property name="pluginpath" location="target/minecraft/plugins" />
     <property name="pluginname" value="awp" />
     <property name="src"  location="src"  />
     <property name="dist" location="dist" />
