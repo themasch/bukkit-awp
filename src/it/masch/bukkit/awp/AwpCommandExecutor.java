@@ -117,7 +117,7 @@ public class AwpCommandExecutor implements CommandExecutor
 			if (player.equalsIgnoreCase(owner)) {
 				if (pl.hasPermission("awp.warp.own"))
 					pl.sendMessage(ChatColor.RED
-							+ "Sorry, warp point not found.");
+							+ "Sorry, warp point not found. 1");
 				else
 					pl.sendMessage(ChatColor.RED
 							+ "No permission to warp, buddy.");
@@ -137,12 +137,12 @@ public class AwpCommandExecutor implements CommandExecutor
 						break;
 					}
 				}
-				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found. 2");
 				return;
 			}
 
 			if (!warps.contains(owner + "." + wp)) {
-				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found. 3");
 				return;
 			}
 
