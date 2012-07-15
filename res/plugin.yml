@@ -3,6 +3,7 @@ version: 0.0.1
 description: awesome warp plugin
 author: masch
 main: it.masch.bukkit.awp.AWP
+depend: [TelePlusPlus]
 commands:
     awp:
         description: The main AWP command
