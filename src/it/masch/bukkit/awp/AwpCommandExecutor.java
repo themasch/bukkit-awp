@@ -1,20 +1,22 @@
 package it.masch.bukkit.awp;
 
+import net.sacredlabyrinth.Phaed.TelePlusPlus.TelePlusPlus;
+import net.sacredlabyrinth.Phaed.TelePlusPlus.managers.TeleportManager;
+
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.PluginsCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class AwpCommandExecutor implements CommandExecutor {
 	private final JavaPlugin plugin;
 	private final FileConfiguration config;
 	private ConfigurationSection warps;
-	private final Plugin tpp;
+	public final TeleportManager tm;
 
 	public AwpCommandExecutor(JavaPlugin plugin) {
 		this.plugin = plugin;
@@ -23,12 +25,13 @@ public class AwpCommandExecutor implements CommandExecutor {
 		if (this.warps == null) {
 			this.warps = this.config.createSection("warps");
 		}
-		this.tpp = plugin.getServer().getPluginManager()
+		TelePlusPlus tpp = (TelePlusPlus) plugin.getServer().getPluginManager()
 				.getPlugin("TelePlusPlus");
-		if (this.tpp == null || !this.tpp.isEnabled()) {
+		if (tpp == null || !tpp.isEnabled()) {
 			throw new RuntimeException(
 					"TelePlusPlus not active on this server!");
 		}
+		this.tm = tpp.tm;
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 	public void doWarp(Player pl, String[] args) {
 		if (!pl.hasPermission("awp.warp.own")
 				&& !pl.hasPermission("awp.warp.public")) {
-			pl.sendMessage("no permission to warp, buddy");
+			pl.sendMessage(ChatColor.RED + "No permission to warp, buddy.");
 		}
 
 		String wp = args[0];
@@ -87,14 +90,16 @@ public class AwpCommandExecutor implements CommandExecutor {
 
 			if (player.equals(owner)) {
 				if (pl.hasPermission("awp.warp.own"))
-					pl.sendMessage("sorry, warp point not found");
+					pl.sendMessage(ChatColor.RED
+							+ "Sorry, warp point not found.");
 				else
-					pl.sendMessage("no permission to warp, buddy");
+					pl.sendMessage(ChatColor.RED
+							+ "No permission to warp, buddy.");
 				return;
 			}
 
 			if (!pl.hasPermission("awp.warp.public")) {
-				pl.sendMessage("no permission to warp, buddy");
+				pl.sendMessage(ChatColor.RED + "No permission to warp, buddy.");
 				return;
 			}
 
@@ -106,12 +111,12 @@ public class AwpCommandExecutor implements CommandExecutor {
 						break;
 					}
 				}
-				pl.sendMessage("sorry, warp point not found");
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
 				return;
 			}
 
 			if (!warps.contains(owner + "." + wp)) {
-				pl.sendMessage("sorry, warp point not found");
+				pl.sendMessage(ChatColor.RED + "Sorry, warp point not found.");
 				return;
 			}
 
@@ -122,10 +127,12 @@ public class AwpCommandExecutor implements CommandExecutor {
 		try {
 			WarpPoint warp = new WarpPoint(this.plugin.getServer(),
 					this.warps.getString(wpOwner + "." + wp));
-			String[] argsToTPP = { warp.getWorld().getName(), "" + warp.getX(),
-					"" + warp.getY(), "" + warp.getZ() };
-			this.tpp.onCommand(pl, new PluginsCommand("tp"), "tp", argsToTPP);
-			// TODO direction/view angle
+			if (!tm.teleport(pl, warp)) {
+				pl.sendMessage(ChatColor.RED
+						+ "No free space available for warp");
+				return;
+			}
+			pl.sendMessage(ChatColor.DARK_PURPLE + "Warped to " + wp);
 
 		} catch (Exception e) {
 			pl.sendMessage("broken data, Junge!");
@@ -134,25 +141,27 @@ public class AwpCommandExecutor implements CommandExecutor {
 
 	public void doCreate(Player pl, String[] args) {
 		if (!pl.hasPermission("awp.create")) {
-			pl.sendMessage("missing permissions! (awp.create)");
+			pl.sendMessage(ChatColor.RED + "Missing permissions! (awp.create)");
 			return;
 		}
 		String name = "";
 		if (args.length <= 1) {
-			pl.sendMessage("please provide a name for this warp point");
-			pl.sendMessage("usage: /awp create <name>");
+			pl.sendMessage(ChatColor.YELLOW
+					+ "Please provide a name for this warp point.");
+			pl.sendMessage(ChatColor.YELLOW + "Usage: /awp create <name>");
 			return;
 		}
 		name = pl.getName().toLowerCase() + "." + args[1];
 		if (this.warps.contains(name)) {
-			pl.sendMessage("this warp point already exists.");
-			pl.sendMessage("please use /awp set to change a warp points location.");
+			pl.sendMessage(ChatColor.YELLOW + "This warp point already exists.");
+			pl.sendMessage(ChatColor.YELLOW
+					+ "Please use /awp set to change a warp points location.");
 		}
 		WarpPoint wp = new WarpPoint(pl.getLocation());
 		String wps = wp.toString();
 		this.warps.set(name, wps);
 
-		pl.sendMessage("warp created");
+		pl.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wps + " created.");
 		this.saveConfig();
 	}
 
