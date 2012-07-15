@@ -146,21 +146,20 @@ public class AwpCommandExecutor implements CommandExecutor {
 			wpOwner = owner;
 			break;
 		}
+		wpOwner = wpOwner.toLowerCase();
+		WarpPoint warp = null;
 		try {
-			wpOwner = wpOwner.toLowerCase();
-			WarpPoint warp = new WarpPoint(this.plugin.getServer(),
+			warp = new WarpPoint(this.plugin.getServer(),
 					this.warps.getString(wpOwner + "." + wp));
-			warp.subtract(.5, 0, .5);
-			if (!tm.teleport(pl, warp)) {
-				pl.sendMessage(ChatColor.RED
-						+ "No free space available for warp");
-				return;
-			}
-			pl.sendMessage(ChatColor.DARK_PURPLE + "Warped to " + wp);
-
 		} catch (Exception e) {
 			pl.sendMessage(ChatColor.RED + "Broken data, Junge!");
 		}
+		warp.subtract(.5, 0, .5);
+		if (!tm.teleport(pl, warp)) {
+			pl.sendMessage(ChatColor.RED + "No free space available for warp");
+			return;
+		}
+		pl.sendMessage(ChatColor.DARK_PURPLE + "Warped to " + wp);
 	}
 
 	public void doCreate(Player pl, String[] args) {
@@ -234,7 +233,41 @@ public class AwpCommandExecutor implements CommandExecutor {
 	}
 
 	public void doDelete(Player player, String[] args) {
-		// TODO
+		if (!player.hasPermission("awp.warp.own")) {
+			player.sendMessage(ChatColor.RED
+					+ "No permission to change warp points, buddy.");
+			return;
+		}
+		if (args.length <= 1) {
+			player.sendMessage(ChatColor.YELLOW
+					+ "Please provide a name for the warp point to delete.");
+			player.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
+					+ "/awp set <name>");
+			return;
+		}
+		String wp = args[1];
+		String owner = null;
+		if (wp.indexOf(".") != -1) {
+			String ownerName = wp.substring(0, wp.indexOf("."));
+			owner = matchPlayer(ownerName);
+			if (owner != null) {
+				wp = wp.substring(wp.indexOf(".") + 1);
+			}
+		}
+		if (owner != null && !owner.equalsIgnoreCase(player.getName())) {
+			player.sendMessage(ChatColor.RED + "Mind your own warp points!");
+			return;
+		}
+		owner = player.getName().toLowerCase();
+		if (!warps.contains(owner + "." + wp)) {
+			player.sendMessage(ChatColor.RED + "Warp point " + wp
+					+ " does not exist!");
+			return;
+		}
+		this.warps.set(owner + "." + wp, "");
+
+		player.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wp + " deleted.");
+		this.saveConfig();
 	}
 
 }
