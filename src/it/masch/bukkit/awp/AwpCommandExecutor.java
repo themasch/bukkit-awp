@@ -66,19 +66,33 @@ public class AwpCommandExecutor implements CommandExecutor {
 	}
 
 	private void usage(CommandSender sender) {
-		String[] msgs = new String[5];
-		msgs[0] = ChatColor.WHITE + "/awp <name>" + ChatColor.YELLOW
-				+ " Warp to the specified warp point.";
-		msgs[1] = ChatColor.WHITE + "/awp create <name>" + ChatColor.YELLOW
-				+ " Create a warp point at the current position.";
-		msgs[2] = ChatColor.WHITE + "/awp set <name>" + ChatColor.YELLOW
-				+ " Set the specified warp point to the current position.";
-		msgs[3] = ChatColor.WHITE + "/awp del <name>" + ChatColor.YELLOW
-				+ " Delete the specified warp point.";
-		msgs[4] = ChatColor.WHITE + "/awp list [player]" + ChatColor.YELLOW
-				+ " Show a list of your public warp points. "
-				+ "Specifiy a player to show his/her public warp points.";
-		sender.sendMessage(msgs);
+		List<String> msgs = new ArrayList<String>();
+		msgs.add(ChatColor.DARK_PURPLE + "Usage of awp:");
+		msgs.add(ChatColor.WHITE + "/awp <name>" + ChatColor.YELLOW
+				+ " Warp to the specified warp point.");
+		msgs.add(ChatColor.WHITE + "/awp create <name> [private]"
+				+ ChatColor.YELLOW
+				+ " Create a warp point at the current position.");
+		msgs.add("      " + ChatColor.YELLOW
+				+ "With private you can hide the warp point from others.");
+		msgs.add(ChatColor.WHITE + "/awp private <name>" + ChatColor.YELLOW
+				+ " Set a warp point to be private.");
+		msgs.add(ChatColor.WHITE + "/awp public <name>" + ChatColor.YELLOW
+				+ " Set a warp point to be public.");
+		msgs.add(ChatColor.WHITE + "/awp invite <name> <players>"
+				+ ChatColor.YELLOW
+				+ " Invite one or more players to your private warp point");
+		msgs.add("      " + ChatColor.YELLOW
+				+ "Seperate players by white spaces.");
+		msgs.add(ChatColor.WHITE + "/awp set <name>" + ChatColor.YELLOW
+				+ " Set the specified warp point to the current position.");
+		msgs.add(ChatColor.WHITE + "/awp del <name>" + ChatColor.YELLOW
+				+ " Delete the specified warp point.");
+		msgs.add(ChatColor.WHITE + "/awp list [player]" + ChatColor.YELLOW
+				+ " Show a list of your public warp points. ");
+		msgs.add("      " + ChatColor.YELLOW
+				+ "Specifiy a player to show his/her public warp points.");
+		sender.sendMessage(msgs.toArray(new String[0]));
 	}
 
 	private String matchPlayer(String shortName) {
