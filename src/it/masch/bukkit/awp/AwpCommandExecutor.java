@@ -202,8 +202,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		warp.getLocation().subtract(.5, 0, .5);
-		if (!tm.teleport(pl, warp.getLocation())) {
+		if (!tm.teleport(pl, warp.getLocation().subtract(.5, 0, .5))) {
 			pl.sendMessage(ChatColor.RED + "No free space available for warp");
 			return;
 		}
