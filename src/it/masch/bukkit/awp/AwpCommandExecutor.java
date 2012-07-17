@@ -48,7 +48,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 		}
 
 		if (args.length < 1) {
-			usage(sender);
+			usage(player);
 		} else {
 			if (args[0].equalsIgnoreCase("create")) {
 				this.doCreate(player, args);
@@ -58,6 +58,11 @@ public class AwpCommandExecutor implements CommandExecutor {
 				this.doDelete(player, args);
 			} else if (args[0].equalsIgnoreCase("list")) {
 				this.doList(player, args);
+			} else if (args[0].equalsIgnoreCase("private")
+					|| args[0].equalsIgnoreCase("public")) {
+				this.doVisibility(player, args);
+			} else if (args[0].equalsIgnoreCase("invite")) {
+				this.doInvite(player, args);
 			} else {
 				this.doWarp(player, args);
 			}
@@ -151,7 +156,6 @@ public class AwpCommandExecutor implements CommandExecutor {
 			if (owner == null) {
 				for (String name : warps.getKeys(false)) {
 					if (warps.contains(name + "." + wp)) {
-						// TODO (isPublic y/n)
 						wpOwner = name;
 						break;
 					}
@@ -168,7 +172,6 @@ public class AwpCommandExecutor implements CommandExecutor {
 				return;
 			}
 
-			// TODO (ispublic y/n)
 			wpOwner = owner;
 		} while (false);
 		wpOwner = wpOwner.toLowerCase();
@@ -188,15 +191,19 @@ public class AwpCommandExecutor implements CommandExecutor {
 		try {
 			data = this.warps.getString(wpOwner + "." + wp);
 			warp = new WarpPoint(this.plugin.getServer(), data);
-
 		} catch (Exception e) {
 			pl.sendMessage(ChatColor.RED + "Broken data, Junge!");
 			pl.sendMessage(ChatColor.AQUA + data);
 			return;
 		}
 
-		warp.subtract(.5, 0, .5);
-		if (!tm.teleport(pl, warp)) {
+		if (!wpOwner.equalsIgnoreCase(playerName) && !warp.isPublic()) {
+			pl.sendMessage(ChatColor.RED + "You shall not warp!");
+			return;
+		}
+
+		warp.getLocation().subtract(.5, 0, .5);
+		if (!tm.teleport(pl, warp.getLocation())) {
 			pl.sendMessage(ChatColor.RED + "No free space available for warp");
 			return;
 		}
@@ -213,7 +220,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 			pl.sendMessage(ChatColor.YELLOW
 					+ "Please provide a name for this warp point.");
 			pl.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
-					+ "/awp create <name>");
+					+ "/awp create <name> [private]");
 			return;
 		}
 		name = pl.getName().toLowerCase() + "." + args[1];
@@ -222,16 +229,157 @@ public class AwpCommandExecutor implements CommandExecutor {
 			pl.sendMessage(ChatColor.YELLOW
 					+ "Please use /awp set to change a warp points location.");
 		}
-		WarpPoint wp = new WarpPoint(pl.getLocation());
+		boolean isPublic = true;
+		if (args.length == 3) {
+			if (args[2].equalsIgnoreCase("private"))
+				isPublic = false;
+			else {
+				pl.sendMessage(ChatColor.RED + "Cannot interprete your input.");
+				pl.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
+						+ "/awp create <name> [private]");
+			}
+
+		}
+		WarpPoint wp = new WarpPoint(pl.getLocation(), isPublic);
 		String wps = wp.toString();
 		this.warps.set(name, wps);
 
-		pl.sendMessage(ChatColor.DARK_PURPLE + "Warp " + args[1] + " created.");
+		pl.sendMessage(ChatColor.DARK_PURPLE
+				+ (isPublic ? "Public" : "Private") + " warp " + args[1]
+				+ " created.");
 		this.saveConfig();
 	}
 
 	public void saveConfig() {
 		this.plugin.saveConfig();
+	}
+
+	public void doInvite(Player player, String[] args) {
+		if (!player.hasPermission("awp.warp.own")) {
+			player.sendMessage(ChatColor.RED
+					+ "No permission to invite to warp points, buddy.");
+			return;
+		}
+		if (args.length <= 1) {
+			player.sendMessage(ChatColor.YELLOW
+					+ "Please provide a name for the warp point you want to invite players to.");
+			player.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
+					+ "/awp invite <name> <players>");
+			return;
+		}
+		if (args.length <= 2) {
+			player.sendMessage(ChatColor.YELLOW
+					+ "Please provide at least one player name you want to invite.");
+			player.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
+					+ "/awp invite <name> <players>");
+			return;
+		}
+		String wp = args[1];
+		String owner = null;
+		if (wp.indexOf(".") != -1) {
+			String ownerName = wp.substring(0, wp.indexOf("."));
+			owner = matchPlayer(ownerName);
+			if (owner != null) {
+				wp = wp.substring(wp.indexOf(".") + 1);
+			}
+		}
+		if (owner != null && !owner.equalsIgnoreCase(player.getName())) {
+			player.sendMessage(ChatColor.RED + "You shall not invite!");
+			return;
+		}
+		owner = player.getName().toLowerCase();
+		if (!warps.contains(owner + "." + wp)) {
+			player.sendMessage(ChatColor.RED + "Warp point " + wp
+					+ " does not exist!");
+			return;
+		}
+		WarpPoint warp = null;
+		String data = this.warps.getString(owner + "." + wp);
+		try {
+			warp = new WarpPoint(this.plugin.getServer(), data);
+		} catch (Exception e) {
+			player.sendMessage(ChatColor.RED + "Broken data, Junge!");
+			player.sendMessage(ChatColor.AQUA + data);
+			return;
+		}
+		if (warp.isPublic()) {
+			player.sendMessage(ChatColor.YELLOW
+					+ "This warp point is already public.");
+			return;
+		}
+
+		String playerName = player.getName();
+		Player inv;
+		List<Player> candidates;
+		for (int i = 2; i < args.length; i++) {
+			candidates = this.plugin.getServer().matchPlayer(args[i]);
+			if (candidates.isEmpty()) {
+				player.sendMessage(ChatColor.YELLOW + "Player " + args[i]
+						+ " could not be found.");
+			} else {
+				inv = candidates.get(0);
+				inv.sendMessage(ChatColor.DARK_PURPLE + playerName
+						+ " invited you to warp point " + wp);
+				warp.addPlayer(inv.getName().toLowerCase());
+			}
+		}
+
+		this.warps.set(owner + "." + wp, warp.toString());
+
+		this.saveConfig();
+	}
+
+	public void doVisibility(Player player, String[] args) {
+		if (!player.hasPermission("awp.warp.own")) {
+			player.sendMessage(ChatColor.RED
+					+ "No permission to change warp points, buddy.");
+			return;
+		}
+		if (args.length <= 1) {
+			player.sendMessage(ChatColor.YELLOW
+					+ "Please provide a name for the warp point to change.");
+			player.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE
+					+ "/awp private|public <name>");
+			return;
+		}
+		String wp = args[1];
+		String owner = null;
+		if (wp.indexOf(".") != -1) {
+			String ownerName = wp.substring(0, wp.indexOf("."));
+			owner = matchPlayer(ownerName);
+			if (owner != null) {
+				wp = wp.substring(wp.indexOf(".") + 1);
+			}
+		}
+		if (owner != null && !owner.equalsIgnoreCase(player.getName())) {
+			player.sendMessage(ChatColor.RED + "Mind your own warp points!");
+			return;
+		}
+		owner = player.getName().toLowerCase();
+		if (!warps.contains(owner + "." + wp)) {
+			player.sendMessage(ChatColor.RED + "Warp point " + wp
+					+ " does not exist!");
+			return;
+		}
+		WarpPoint warp = null;
+		String data = this.warps.getString(owner + "." + wp);
+		try {
+			warp = new WarpPoint(this.plugin.getServer(), data);
+		} catch (Exception e) {
+			player.sendMessage(ChatColor.RED + "Broken data, Junge!");
+			player.sendMessage(ChatColor.AQUA + data);
+			return;
+		}
+		boolean isPublic = args[1].equalsIgnoreCase("public");
+		warp.setPublic(isPublic);
+		this.warps.set(owner + "." + wp, warp.toString());
+
+		player.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wp
+				+ " changed to " + (isPublic ? "public." : "private."));
+		if (!isPublic)
+			player.sendMessage(ChatColor.DARK_PURPLE
+					+ "Invite players to this warp point if you wish.");
+		this.saveConfig();
 	}
 
 	public void doSet(Player player, String[] args) {
@@ -266,7 +414,16 @@ public class AwpCommandExecutor implements CommandExecutor {
 					+ " does not exist!");
 			return;
 		}
-		WarpPoint warp = new WarpPoint(player.getLocation());
+		WarpPoint warp = null;
+		String data = this.warps.getString(owner + "." + wp);
+		try {
+			warp = new WarpPoint(this.plugin.getServer(), data);
+		} catch (Exception e) {
+			player.sendMessage(ChatColor.RED + "Broken data, Junge!");
+			player.sendMessage(ChatColor.AQUA + data);
+			return;
+		}
+		warp.setLocation(player.getLocation());
 		this.warps.set(owner + "." + wp, warp.toString());
 
 		player.sendMessage(ChatColor.DARK_PURPLE + "Warp " + wp + " moved.");
@@ -356,4 +513,5 @@ public class AwpCommandExecutor implements CommandExecutor {
 			}
 		}
 	}
+
 }

@@ -6,7 +6,8 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Server;
 
-class WarpPoint extends Location {
+class WarpPoint {
+	private Location loc;
 	private boolean isPublic;
 	private List<String> players = null;
 
@@ -15,8 +16,7 @@ class WarpPoint extends Location {
 	}
 
 	public WarpPoint(Location loc, boolean isPublic) {
-		super(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
-				loc.getPitch());
+		this.loc = loc;
 		this.setPublic(isPublic);
 		if (!isPublic) {
 			players = new ArrayList<String>();
@@ -24,12 +24,11 @@ class WarpPoint extends Location {
 	}
 
 	public WarpPoint(Server srv, String str) throws Exception {
-		super(null, 0, 0, 0, 0, 0);
 		String[] params = str.split(",");
 		if (params.length < 6) {
 			throw new Exception("Invalid data format.");
 		}
-		Location loc = new Location(srv.getWorld(params[0]),
+		this.loc = new Location(srv.getWorld(params[0]),
 				Double.parseDouble(params[1]), // X
 				Double.parseDouble(params[2]), // Y
 				Double.parseDouble(params[3]), // Z
@@ -37,10 +36,6 @@ class WarpPoint extends Location {
 				Float.valueOf(params[5]).floatValue() // pitch
 		);
 		boolean isPublic = params.length == 6 || Boolean.valueOf(params[6]);
-		this.setWorld(loc.getWorld());
-		this.add(loc);
-		this.setYaw(loc.getYaw());
-		this.setPitch(loc.getPitch());
 		this.setPublic(isPublic);
 		if (!this.isPublic()) {
 			players = new ArrayList<String>();
@@ -52,9 +47,9 @@ class WarpPoint extends Location {
 
 	@Override
 	public String toString() {
-		String ret = this.getWorld().getName() + "," + this.getX() + ","
-				+ this.getY() + "," + this.getZ() + "," + this.getYaw() + ","
-				+ this.getPitch();
+		String ret = this.loc.getWorld().getName() + "," + this.loc.getX()
+				+ "," + this.loc.getY() + "," + this.loc.getZ() + ","
+				+ this.loc.getYaw() + "," + this.loc.getPitch();
 		if (!this.isPublic()) {
 			ret += "," + this.isPublic();
 			for (String name : players) {
@@ -69,6 +64,8 @@ class WarpPoint extends Location {
 	}
 
 	public void setPublic(boolean isPublic) {
+		if (this.isPublic == isPublic)
+			return;
 		this.isPublic = isPublic;
 		if (isPublic) {
 			players = null;
@@ -87,5 +84,13 @@ class WarpPoint extends Location {
 		if (this.getPlayers().contains(playerName))
 			return;
 		this.players.add(playerName);
+	}
+
+	public Location getLocation() {
+		return this.loc;
+	}
+
+	public void setLocation(Location loc) {
+		this.loc = loc;
 	}
 }
