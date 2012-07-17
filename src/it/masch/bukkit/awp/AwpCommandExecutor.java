@@ -318,7 +318,9 @@ public class AwpCommandExecutor implements CommandExecutor {
 			} else {
 				inv = candidates.get(0);
 				inv.sendMessage(ChatColor.DARK_PURPLE + playerName
-						+ " invited you to warp point " + wp);
+						+ " invited you to warp point " + wp + ".");
+				player.sendMessage(ChatColor.DARK_PURPLE + "Invited "
+						+ inv.getName() + "to warp point " + wp + ".");
 				warp.addPlayer(inv.getName().toLowerCase());
 			}
 		}
