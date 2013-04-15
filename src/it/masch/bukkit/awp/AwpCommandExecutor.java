@@ -7,6 +7,7 @@ import net.sacredlabyrinth.Phaed.TelePlusPlus.TelePlusPlus;
 import net.sacredlabyrinth.Phaed.TelePlusPlus.managers.TeleportManager;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -202,8 +203,15 @@ public class AwpCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		if (!tm.teleport(pl, warp.getLocation().subtract(.5, 0, .5))) {
-			pl.sendMessage(ChatColor.RED + "No free space available for warp");
+		if (!tm.teleport(pl, warp.getLocation())) {
+			pl.sendMessage(ChatColor.RED + "No free space available for warp.");
+			return;
+
+		}
+		Location loc = pl.getLocation();
+		warp.getLocation().setY(loc.getY());
+		if (!pl.teleport(warp.getLocation())) {
+			pl.sendMessage(ChatColor.RED + "Sorry, something went wrong.");
 			return;
 		}
 		pl.sendMessage(ChatColor.DARK_PURPLE + "Warped to " + wp);
