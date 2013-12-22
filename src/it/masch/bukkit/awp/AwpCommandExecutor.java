@@ -197,7 +197,8 @@ public class AwpCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		if (!wpOwner.equalsIgnoreCase(playerName) && !warp.isPublic()) {
+		if (!warp.isPublic() && !wpOwner.equalsIgnoreCase(playerName)
+				&& !warp.getPlayers().contains(playerName.toLowerCase())) {
 			pl.sendMessage(ChatColor.RED + "You shall not warp!");
 			return;
 		}
@@ -371,7 +372,7 @@ public class AwpCommandExecutor implements CommandExecutor {
 			player.sendMessage(ChatColor.AQUA + data);
 			return;
 		}
-		boolean isPublic = args[1].equalsIgnoreCase("public");
+		boolean isPublic = args[0].equalsIgnoreCase("public");
 		warp.setPublic(isPublic);
 		this.warps.set(owner + "." + wp, warp.toString());
 
