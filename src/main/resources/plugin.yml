@@ -1,5 +1,5 @@
 name: awp
-version: 0.0.1
+version: 0.0.2
 description: awesome warp plugin
 author: masch
 main: it.masch.bukkit.awp.AWP
@@ -8,15 +8,15 @@ commands:
     awp:
         description: The main AWP command
         permission: awp.enabled
-        usage: /<command> 
-permissions: 
+        usage: /<command>
+permissions:
     awp.*:
         description: gives access to all awp features
-        children: 
+        children:
             awp.enable: true
             awp.create: true
-            awp.warp.all: true 
-    awp.enable: 
+            awp.warp.all: true
+    awp.enable:
         description: enables the usage of the /<command> command
         default: true
     awp.cerate:
@@ -31,6 +31,6 @@ permissions:
     awp.warp.all:
         description: Allows you to warp to all warp points
         default: op
-        children: 
+        children:
             awp.warp.own: true
             awp.warp.public: true
