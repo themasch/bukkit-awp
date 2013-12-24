@@ -3,22 +3,26 @@ package it.masch.bukkit.awp;
 import java.util.logging.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.plugin.PluginDescriptionFile;
 
-public class AWP extends JavaPlugin {
-	public static final String VERSION = "0.0.1";
-	public static final String NAME = "AWP";
+public class AWP extends JavaPlugin
+{
+    private Logger log = Logger.getLogger("Minecraft");
+    private CommandExecutor cmd;
 
-	private Logger log = Logger.getLogger("Minecraft");
-	private CommandExecutor cmd;
+    public void onEnable()
+    {
+        //PluginDescriptionFile desc = getDescription();
+        //log.info("[" + desc.getName() + "#" + desc.getVersion() + "] enabled");
+        log.info("AWP ENABLED");
+        cmd = new AwpCommandExecutor(this);
+        getCommand("awp").setExecutor(cmd);
+    }
 
-	public void onEnable() {
-		log.info("[" + NAME + "] version " + VERSION + " enabled");
-		this.cmd = new AwpCommandExecutor(this);
-		this.getCommand("awp").setExecutor(this.cmd);
-	}
-
-	public void onDisable() {
-		log.info("[" + NAME + "] disabled");
-	}
+    public void onDisable()
+    {
+        //PluginDescriptionFile desc = getDescription();
+        //log.info("[" + desc.getName() + "#" + desc.getVersion() + "] disabled");
+    }
 
 }
