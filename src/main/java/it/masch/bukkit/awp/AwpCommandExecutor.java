@@ -7,6 +7,7 @@ import net.sacredlabyrinth.Phaed.TelePlusPlus.TelePlusPlus;
 import net.sacredlabyrinth.Phaed.TelePlusPlus.managers.TeleportManager;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,6 +27,7 @@ public class AwpCommandExecutor implements CommandExecutor
     public AwpCommandExecutor(JavaPlugin plugin)
     {
         this.plugin = plugin;
+
         config = plugin.getConfig();
         warps = config.getConfigurationSection("warps");
         if (warps == null) {
@@ -38,6 +40,7 @@ public class AwpCommandExecutor implements CommandExecutor
             throw new RuntimeException(
                     "TelePlusPlus not active on this server!");
         }
+
         tm = tpp.tm;
     }
 
@@ -220,8 +223,15 @@ public class AwpCommandExecutor implements CommandExecutor
             return;
         }
 
-        if (!tm.teleport(pl, warp.getLocation().subtract(.5, 0, .5))) {
-            pl.sendMessage(ChatColor.RED + "No free space available for warp");
+        if (!tm.teleport(pl, warp.getLocation())) {
+            pl.sendMessage(ChatColor.RED + "No free space available for warp.");
+            return;
+
+        }
+        Location loc = pl.getLocation();
+        warp.getLocation().setY(loc.getY());
+        if (!pl.teleport(warp.getLocation())) {
+            pl.sendMessage(ChatColor.RED + "Sorry, something went wrong.");
             return;
         }
         pl.sendMessage(ChatColor.DARK_PURPLE + "Warped to " + wp);
@@ -395,7 +405,8 @@ public class AwpCommandExecutor implements CommandExecutor
             player.sendMessage(ChatColor.AQUA + data);
             return;
         }
-        boolean isPublic = args[0].equalsIgnoreCase("public");
+
+        boolean isPublic = args[1].equalsIgnoreCase("public");
         warp.setPublic(isPublic);
         this.warps.set(owner + "." + wp, warp.toString());
 

@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class AWP extends JavaPlugin
 {
