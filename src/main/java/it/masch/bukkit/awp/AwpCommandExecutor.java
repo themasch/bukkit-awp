@@ -406,7 +406,7 @@ public class AwpCommandExecutor implements CommandExecutor
             return;
         }
 
-        boolean isPublic = args[1].equalsIgnoreCase("public");
+        boolean isPublic = args[0].equalsIgnoreCase("public");
         warp.setPublic(isPublic);
         this.warps.set(owner + "." + wp, warp.toString());
 
