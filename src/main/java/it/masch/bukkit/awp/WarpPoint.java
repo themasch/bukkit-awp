@@ -8,6 +8,7 @@ import org.bukkit.Server;
 
 class WarpPoint
 {
+
     private Location loc;
     private boolean isPublic;
     private List<String> players = null;

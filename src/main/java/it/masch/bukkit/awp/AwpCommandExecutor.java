@@ -16,7 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class AwpCommandExecutor implements CommandExecutor
- {
+{
+
     private final JavaPlugin plugin;
     private final FileConfiguration config;
     private ConfigurationSection warps;
@@ -30,13 +31,12 @@ public class AwpCommandExecutor implements CommandExecutor
         if (warps == null) {
             warps = config.createSection("warps");
         }
-        TelePlusPlus tpp = (TelePlusPlus)plugin
-                                .getServer()
-                                    .getPluginManager()
-                                        .getPlugin("TelePlusPlus");
+        TelePlusPlus tpp = (TelePlusPlus) plugin.getServer().getPluginManager()
+                .getPlugin("TelePlusPlus");
 
         if (tpp == null || !tpp.isEnabled()) {
-            throw new RuntimeException("TelePlusPlus not active on this server!");
+            throw new RuntimeException(
+                    "TelePlusPlus not active on this server!");
         }
         tm = tpp.tm;
     }
@@ -54,9 +54,8 @@ public class AwpCommandExecutor implements CommandExecutor
 
         if (args.length < 1) {
             usage(player);
-        }
-        else {
-            switch(args[0].toLowerCase()) {
+        } else {
+            switch (args[0].toLowerCase()) {
                 case "create":
                     this.doCreate(player, args);
                     break;
@@ -84,7 +83,8 @@ public class AwpCommandExecutor implements CommandExecutor
         return true;
     }
 
-    private void usage(CommandSender sender) {
+    private void usage(CommandSender sender)
+    {
         List<String> msgs = new ArrayList<String>();
         msgs.add(ChatColor.DARK_PURPLE + "Usage of awp:");
         msgs.add(ChatColor.WHITE + "/awp <name>" + ChatColor.YELLOW
@@ -194,7 +194,8 @@ public class AwpCommandExecutor implements CommandExecutor
         wpOwner = wpOwner.toLowerCase();
         WarpPoint warp = null;
 
-        ConfigurationSection subfields = this.warps.getConfigurationSection(wpOwner + "." + wp);
+        ConfigurationSection subfields = this.warps
+                .getConfigurationSection(wpOwner + "." + wp);
         if (subfields != null) {
             pl.sendMessage(ChatColor.RED
                     + "Warp point is ambiguous. Valid options are: ");
