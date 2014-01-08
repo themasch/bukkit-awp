@@ -505,11 +505,11 @@ public class AwpCommandExecutor implements CommandExecutor
         } else {
             owner = matchPlayer(args[1]);
             if (owner == null || !player.hasPermission("awp.warp.public")) {
-                msgs.add(ChatColor.RED + "There are no warp points " + owner == null ? ""
-                        : "of owner " + "to warp to.");
+                msgs.add(ChatColor.RED + "There are no warp points "
+                        + (owner == null ? "" : "of " + owner) + " to warp to.");
             } else {
-                msgs.add(ChatColor.DARK_PURPLE + "Public warp points of "
-                        + ChatColor.WHITE + owner);
+                msgs.add(ChatColor.DARK_PURPLE + "Warp points of "
+                        + ChatColor.WHITE + owner + " to warp to");
             }
         }
         if (owner != null) {
@@ -528,11 +528,16 @@ public class AwpCommandExecutor implements CommandExecutor
         for (String key : playerWarps.getKeys(false)) {
             if (playerWarps.isConfigurationSection(key)) {
                 newPrefix = prefix.equals("") ? "" : (prefix + ".") + key;
+                msgs.add("  " + ChatColor.GRAY + newPrefix);
                 printWarpPoints(playerWarps.getConfigurationSection(key), msgs,
                         newPrefix);
                 continue;
             }
             if (playerWarps.isString(key)) {
+                // TODO: hide private warp points if not invited
+                // TODO: show warp points the player has been invited too in own
+                // list?
+                // TODO: color coding (public, private, invited, warp section)
                 msgs.add("  " + ChatColor.WHITE + key);
             }
         }
