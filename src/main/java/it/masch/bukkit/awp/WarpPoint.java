@@ -1,108 +1,118 @@
 package it.masch.bukkit.awp;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
-class WarpPoint
+
+class WarpPoint implements Comparable<WarpPoint>
 {
 
-    private Location loc;
-    private boolean isPublic;
-    private List<String> players = null;
+  public static final String NAME = "name";
+  public static final String OWNER_NAME = "ownername";
+  public static final String LOCATION = "location";
 
-    public WarpPoint(Location loc)
-    {
-        this(loc, true);
-    }
+  private String name;
+  private Location location;
+  private String ownerName;
+  private boolean isPublic;
+  private Set<String> invited = new HashSet<String>();
 
-    public WarpPoint(Location loc, boolean isPublic)
-    {
-        this.loc = loc;
-        this.setPublic(isPublic);
-        if (!isPublic) {
-            players = new ArrayList<String>();
-        }
-    }
+  public WarpPoint(String name, String ownerName, Location loc)
+  {
+    this.name = name;
+    this.ownerName = ownerName;
+    this.location  = loc;
+  }
 
-    public WarpPoint(Server srv, String str) throws Exception
-    {
-        String[] params = str.split(",");
-        if (params.length < 6) {
-            throw new Exception("Invalid data format.");
-        }
-        this.loc = new Location(srv.getWorld(params[0]),
-                Double.parseDouble(params[1]), // X
-                Double.parseDouble(params[2]), // Y
-                Double.parseDouble(params[3]), // Z
-                Float.valueOf(params[4]).floatValue(), // yaw
-                Float.valueOf(params[5]).floatValue() // pitch
-        );
-        boolean isPublic = params.length == 6 || Boolean.valueOf(params[6]);
-        this.setPublic(isPublic);
-        if (!this.isPublic()) {
-            players = new ArrayList<String>();
-            for (int i = 7; i < params.length; i++) {
-                players.add(params[i]);
-            }
-        }
-    }
+  public Location getLocation()
+  {
+    return location;
+  }
 
-    @Override
-    public String toString()
-    {
-        String ret = this.loc.getWorld().getName() + "," + this.loc.getX()
-                + "," + this.loc.getY() + "," + this.loc.getZ() + ","
-                + this.loc.getYaw() + "," + this.loc.getPitch();
-        if (!this.isPublic()) {
-            ret += "," + this.isPublic();
-            for (String name : players) {
-                ret += "," + name;
-            }
-        }
-        return ret;
-    }
+  public String getName()
+  {
+    return name;
+  }
 
-    public boolean isPublic()
-    {
-        return isPublic;
-    }
+  public boolean isOwner(OfflinePlayer player)
+  {
+    return getOwner().equals(player);
+  }
 
-    public void setPublic(boolean isPublic)
-    {
-        if (this.isPublic == isPublic)
-            return;
-        this.isPublic = isPublic;
-        if (isPublic) {
-            players = null;
-        } else {
-            players = new ArrayList<String>();
-        }
-    }
+  public OfflinePlayer getOwner()
+  {
+   return Bukkit.getServer().getOfflinePlayer(ownerName)
+  }
 
-    public List<String> getPlayers()
-    {
-        return players;
+  public void invite(Set<OfflinePlayer> players)
+  {
+    for (OfflinePlayer player : players){
+      invited.add(player.getName());
     }
+  }
 
-    public void addPlayer(String playerName)
-    {
-        if (this.isPublic())
-            return;
-        if (this.getPlayers().contains(playerName))
-            return;
-        this.players.add(playerName);
+  public void uninvite(Set<OfflinePlayer> players)
+  {
+    for(OfflinePlayer player : players) {
+      invited.remove(player.getName());
     }
+  }
 
-    public Location getLocation()
-    {
-        return this.loc;
-    }
+  public void setPublic()
+  {
+    setPublic(true);
+  }
 
-    public void setLocation(Location loc)
-    {
-        this.loc = loc;
+  public void setPrivate()
+  {
+    setPublic(false);
+  }
+
+  public void setPublic(boolean publ)
+  {
+    isPublic = publ;
+  }
+
+  public boolean getPublic()
+  {
+    return isPublic;
+  }
+
+  public boolean isAllowed(OfflinePlayer player)
+  {
+    return isPublic ||
+           ownerName.equals(player.getName()) ||
+           invited.contains(player.getName());
+  }
+
+  public ConfigurationSection toConfig()
+  {
+    return null;
+  }
+
+  public static WarpPoint fromConfig(Map<String,String> config)
+  {
+    String locString = config.get(LOCATION);
+    String[] locArray = locString.split(",");
+    World world = Bukkit.getServer().getWorld(locArray[0]);
+    double[] pos;
+    float[] dir;
+    try {
+    pos = new double[]{new Double(locArray[1]),
+                       new Double(locArray[2]),
+                       new Double(locArray[3])};
+    dir = new float[]{new Float(locArray[4]),
+                      new Float(locArray[5])};
+    } catch (NumberFormatException nfe){
+      return null
     }
+    Location loc = new Location();
+    return null;
+  }
 }
