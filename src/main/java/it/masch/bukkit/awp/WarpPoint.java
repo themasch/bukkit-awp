@@ -132,7 +132,6 @@ class WarpPoint implements Comparable<WarpPoint>
                 loc);
         wp.setPublic(new Boolean(config.get(VISIBILITY)));
         wp.invited.addAll(Arrays.asList(config.get(INVITED).split(",")));
-        wp.invited.remove("");
         return wp;
     }
 
